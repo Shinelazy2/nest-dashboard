@@ -11,6 +11,10 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_config_1 = require("./common/config/typeorm.config");
+const users_module_1 = require("./users/users.module");
+const auth_module_1 = require("./auth/auth.module");
+const core_1 = require("@nestjs/core");
+const guards_1 = require("./common/guards");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -23,9 +27,16 @@ AppModule = __decorate([
             typeorm_1.TypeOrmModule.forRootAsync({
                 useClass: typeorm_config_1.TypeOrmConfigService,
             }),
+            users_module_1.UsersModule,
+            auth_module_1.AuthModule,
         ],
         controllers: [],
-        providers: [],
+        providers: [
+            {
+                provide: core_1.APP_GUARD,
+                useClass: guards_1.AtGuard,
+            },
+        ],
     })
 ], AppModule);
 exports.AppModule = AppModule;

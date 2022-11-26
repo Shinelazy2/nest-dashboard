@@ -20,10 +20,11 @@ let TypeOrmConfigService = class TypeOrmConfigService {
         return {
             type: 'sqlite',
             database: this.configService.get('DB_NAME'),
-            entities: ['**/*.entity{.ts,.js}'],
-            synchronize: false,
+            entities: ['dist/**/*.entity.{ts,js}'],
+            synchronize: true,
             migrations: ['migrations/*.js'],
             autoLoadEntities: true,
+            logging: true,
         };
     }
 };
