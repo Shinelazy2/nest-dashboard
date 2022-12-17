@@ -12,7 +12,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       database: this.configService.get<string>('DB_NAME'),
       // entities: ['../**/**/*.entity.{ts,js}'],
       entities: ['dist/**/*.entity.{ts,js}'],
-      synchronize: true,
+      synchronize: false,
       migrations: ['migrations/*.js'],
       autoLoadEntities: true,
       logging: true,

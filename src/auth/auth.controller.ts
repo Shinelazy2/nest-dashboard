@@ -12,14 +12,14 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
-  @Post('/signup')
+  @Post('/join')
   @HttpCode(HttpStatus.CREATED)
   signUp(@Body() dto: AuthDto): Promise<Tokens> {
     return this.authService.signUp(dto);
   }
 
   @Public()
-  @Post('/signin')
+  @Post('/login')
   @HttpCode(HttpStatus.OK)
   signIn(@Body() dto: AuthDto): Promise<Tokens> {
     return this.authService.signIn(dto);

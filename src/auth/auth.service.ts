@@ -1,6 +1,6 @@
 import { SendResult } from './types/updateResult.type';
 import { TypeormResult } from './types/typeormResult.type';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entity/user.entity';
 import { DataSource, Repository } from 'typeorm';
@@ -17,14 +17,17 @@ export class AuthService {
     private usersRepository: Repository<User>,
     private dataSource: DataSource,
     private jwtService: JwtService,
+    private usersService: UsersService,
   ) {}
 
   async signUp(dto: AuthDto): Promise<Tokens> {
+    const findUser = await this.usersService.findUser(dto.loginId);
+
+    if (findUser) throw new BadRequestException({ message: '이미회원가입됨' });
     dto.hash = await this.hashData(dto.password);
     console.log(dto);
-
     const signUser = await this.usersRepository.save(dto);
-    const tokens = await this.getTokens(signUser.id, signUser.email);
+    const tokens = await this.getTokens(signUser.id, signUser.loginId);
     await this.updateRtHash(signUser.id, tokens.refresh_token);
     return tokens;
   }
@@ -34,7 +37,7 @@ export class AuthService {
       .createQueryBuilder()
       .select('user')
       .from(User, 'user')
-      .where('user.email = :email', { email: dto.email })
+      .where('user.loginId = :loginId', { loginId: dto.loginId })
       .getOne();
     console.log('user : ', user);
     if (!user) throw new ForbiddenException('Access Denied');
@@ -42,7 +45,7 @@ export class AuthService {
     const passwordMatches = await bcrypt.compare(dto.password, user.hash);
     if (!passwordMatches) throw new ForbiddenException('Access Denied');
 
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(user.id, user.loginId);
     await this.updateRtHash(user.id, tokens.refresh_token);
     return tokens;
   }
@@ -71,16 +74,16 @@ export class AuthService {
     return bcrypt.hash(data, 10);
   }
 
-  async getTokens(userId: number, email: string): Promise<Tokens> {
+  async getTokens(userId: number, loginId: string): Promise<Tokens> {
     const jwtPayload: JwtPayload = {
       sub: userId,
-      email: email,
+      loginId: loginId,
     };
 
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, {
         secret: 'at-secret',
-        expiresIn: '10s',
+        expiresIn: '15m',
       }),
       this.jwtService.signAsync(jwtPayload, {
         secret: 'rt-secret',
@@ -109,7 +112,7 @@ export class AuthService {
 
     if (!rtMatches) throw new ForbiddenException('Access Denied');
 
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(user.id, user.loginId);
     await this.updateRtHash(user.id, tokens.refresh_token);
     return tokens;
   }

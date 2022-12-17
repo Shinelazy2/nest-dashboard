@@ -7,19 +7,19 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
-  // const whitelist = ['http://127.0.0.1:5173'];
-  // app.enableCors({
-  //   origin: function (origin, callback) {
-  //     if (!origin || whitelist.indexOf(origin) !== -1) {
-  //       callback(null, true);
-  //     } else {
-  //       callback(new Error('Not allowed by CORS'));
-  //     }
-  //   },
-  //   allowedHeaders: '*',
-  //   methods: 'GET,PUT,PATCH,POST,DELETE,UPDATE,OPTIONS',
-  //   credentials: true,
-  // });
+  const whitelist = ['http://localhost:9000'];
+  app.enableCors({
+    origin: function (origin, callback) {
+      if (!origin || whitelist.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    allowedHeaders: '*',
+    methods: 'GET,PUT,PATCH,POST,DELETE,UPDATE,OPTIONS',
+    credentials: true,
+  });
   // const reflector = new Reflector();
   // app.useGlobalGuards(new AtGuard(reflector));
 

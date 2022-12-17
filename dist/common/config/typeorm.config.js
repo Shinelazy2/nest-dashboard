@@ -21,7 +21,7 @@ let TypeOrmConfigService = class TypeOrmConfigService {
             type: 'sqlite',
             database: this.configService.get('DB_NAME'),
             entities: ['dist/**/*.entity.{ts,js}'],
-            synchronize: true,
+            synchronize: false,
             migrations: ['migrations/*.js'],
             autoLoadEntities: true,
             logging: true,
