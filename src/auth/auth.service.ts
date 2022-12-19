@@ -9,6 +9,7 @@ import { AuthDto } from './dtos';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload, Tokens } from './types';
+import { RoleType } from './types/roles.enum';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +28,7 @@ export class AuthService {
     dto.hash = await this.hashData(dto.password);
     console.log(dto);
     const signUser = await this.usersRepository.save(dto);
-    const tokens = await this.getTokens(signUser.id, signUser.loginId);
+    const tokens = await this.getTokens(signUser.id, signUser.loginId, signUser.role);
     await this.updateRtHash(signUser.id, tokens.refresh_token);
     return tokens;
   }
@@ -45,7 +46,7 @@ export class AuthService {
     const passwordMatches = await bcrypt.compare(dto.password, user.hash);
     if (!passwordMatches) throw new ForbiddenException('Access Denied');
 
-    const tokens = await this.getTokens(user.id, user.loginId);
+    const tokens = await this.getTokens(user.id, user.loginId, user.role);
     await this.updateRtHash(user.id, tokens.refresh_token);
     return tokens;
   }
@@ -74,10 +75,11 @@ export class AuthService {
     return bcrypt.hash(data, 10);
   }
 
-  async getTokens(userId: number, loginId: string): Promise<Tokens> {
+  async getTokens(userId: number, loginId: string, role: RoleType): Promise<Tokens> {
     const jwtPayload: JwtPayload = {
       sub: userId,
       loginId: loginId,
+      role: role,
     };
 
     const [at, rt] = await Promise.all([
@@ -112,7 +114,7 @@ export class AuthService {
 
     if (!rtMatches) throw new ForbiddenException('Access Denied');
 
-    const tokens = await this.getTokens(user.id, user.loginId);
+    const tokens = await this.getTokens(user.id, user.loginId, user.role);
     await this.updateRtHash(user.id, tokens.refresh_token);
     return tokens;
   }

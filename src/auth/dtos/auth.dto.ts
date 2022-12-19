@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { RoleType } from './../types/roles.enum';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class AuthDto {
   @IsNotEmpty()
@@ -10,4 +11,7 @@ export class AuthDto {
   password: string;
 
   hash?: string;
+
+  @IsEnum(RoleType)
+  role?: RoleType;
 }

@@ -11,7 +11,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       type: 'sqlite',
       database: this.configService.get<string>('DB_NAME'),
       // entities: ['../**/**/*.entity.{ts,js}'],
-      entities: ['dist/**/*.entity.{ts,js}'],
+      entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: false,
       migrations: ['migrations/*.js'],
       autoLoadEntities: true,

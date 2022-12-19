@@ -1,3 +1,4 @@
+import { RoleType } from './../../auth/types/roles.enum';
 import {
   Entity,
   Column,
@@ -27,4 +28,7 @@ export class User {
 
   @Column({ nullable: true })
   updateAt: string;
+
+  @Column()
+  role: RoleType;
 }
